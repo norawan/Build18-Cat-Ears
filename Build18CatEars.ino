@@ -13,6 +13,8 @@
 #define R_PAN_PIN 5
 #define R_TILT_PIN 6
 
+#define BAUDRATE 115200
+
 // Create servo objects for each servo
 Servo l_pan;
 Servo l_tilt;
@@ -34,18 +36,27 @@ void setup() {
   l_tilt.attach(L_TILT_PIN);
   r_pan.attach(R_PAN_PIN);
   r_tilt.attach(R_TILT_PIN);
+
+  // Begin Serial 
+  Serial.begin(BAUDRATE);
+  Serial.print("hi");
+  Serial.print("\n");
 }
 
 void loop() {
-  // val = analogRead(potpin);            // reads the value of the potentiometer (value between 0 and 1023)
-  // val = map(val, 0, 1023, 0, 180);     // scale it to use it with the servo (value between 0 and 180)
-  // l_pan.write(val);                    // sets the servo position according to the scaled value
-  // delay(15);
 
-  l_tilt.write(90);
-  l_pan.write(90);
-  delay(2000);
-  wiggleEars(3);
+  // Data received from MuseLSL
+  if(Serial.available()){
+    Serial.print("here");
+    String data = Serial.readStringUntil('\n');
+    Serial.print(data);
+    Serial.print("\n");
+    
+    // l_tilt.write(90);
+    // l_pan.write(90);
+    // delay(2000);
+    // wiggleEars(3);
+  }
 }
 
 /**
