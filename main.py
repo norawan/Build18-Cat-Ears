@@ -5,6 +5,8 @@ from pylsl import StreamInlet, resolve_stream
 ser = serial.Serial('/dev/tty.usbmodem2101', 115200)  # open serial port
 print("Connected to ", ser.name)         # check which port was really used
 
+mood = 0
+
 """
 Estimate Relaxation from Band Powers
 This example shows how to buffer, epoch, and transform EEG data from a single
@@ -36,7 +38,7 @@ class Band:
 
 # Length of the EEG data buffer (in seconds)
 # This buffer will hold last n seconds of data and be used for calculations
-BUFFER_LENGTH = 2
+BUFFER_LENGTH = 5
 
 # Length of the epochs used to compute the FFT (in seconds)
 EPOCH_LENGTH = 1
@@ -134,16 +136,16 @@ if __name__ == "__main__":
 
             # Alpha Protocol:
             # Simple redout of alpha power, divided by delta waves in order to rule out noise
-            alpha_metric = smooth_band_powers[Band.Alpha] / \
-                smooth_band_powers[Band.Delta]
-            print('Alpha Relaxation: ', alpha_metric)
+            # alpha_metric = smooth_band_powers[Band.Alpha] / \
+            #     smooth_band_powers[Band.Delta]
+            # print('Alpha Relaxation: ', alpha_metric)
 
             # Beta Protocol:
             # Beta waves have been used as a measure of mental activity and concentration
             # This beta over theta ratio is commonly used as neurofeedback for ADHD
-            # beta_metric = smooth_band_powers[Band.Beta] / \
-            #     smooth_band_powers[Band.Theta]
-            # print('Beta Concentration: ', beta_metric)
+            beta_metric = smooth_band_powers[Band.Beta] / \
+                smooth_band_powers[Band.Theta]
+            print('Beta Concentration: ', beta_metric)
 
             # Alpha/Theta Protocol:
             # This is another popular neurofeedback metric for stress reduction
@@ -152,13 +154,20 @@ if __name__ == "__main__":
             #     smooth_band_powers[Band.Alpha]
             # print('Theta Relaxation: ', theta_metric)
 
-            ser.write((f"{alpha_metric}").encode())
-
-            data = ser.readline()
-            print(data.decode())
-            if (data == "Connecting to serial port..."):
-              print("Connected!")
+            if (beta_metric > 0.7) :
+              new_mood = 2 # Excited
             
+            elif (beta_metric > 0.4) :
+              new_mood = 1 # Neutral
+          
+            else :
+              new_mood = 0 # Relaxed
+            
+            if (new_mood != mood) :
+              mood = new_mood
+              ser.write((f"{new_mood}").encode())
+            
+            print('Mood: ', mood)
 
     except KeyboardInterrupt:
         print('Closing!')
