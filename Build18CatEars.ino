@@ -20,19 +20,16 @@
 
 #define BAUDRATE 115200
 
-#define ATTN_THRESHOLD 0.60
-
 // Neutral Position
 #define L_T_NEUTRAL 60
 #define R_T_NEUTRAL 60
 #define L_P_NEUTRAL 90
 #define R_P_NEUTRAL 90
 
+#define MAX_COUNT 500
+
 // Enum for speed
 typedef enum { FAST, SLOW } speed_t;
-
-
-typedef enum { NEUTRAL = 0, RELAXED = 1, EXCITED = 2 } mood_t;
 
 // Create servo objects for each servo
 Servo l_pan;
@@ -46,7 +43,7 @@ int r_t_pos;
 int l_p_pos;
 int r_p_pos;
 
-int mood = 0;
+int state = 0; // Tracks the state. 0 = Relaxed, 1 = Neutral, 2 = Excited
 int count = 0; // Counts the number of times no new status has been sent
 
 void setup() {
@@ -81,7 +78,7 @@ void setup() {
 
 void loop() {
 
-  // Data received from Python script
+  // Data received from serial port
   if (Serial.available()){
     Serial.print("Data received: ");
     String data = Serial.readStringUntil('\n');
@@ -91,16 +88,16 @@ void loop() {
 
     float val = data.toInt();
     if (val == 2) {
-      mood = 2;
+      state = 2;
       wiggleEars(3);
     }
     else if (val ==1)  {
-      mood = 1;
-      // Droop ears accoringly
+      state = 1;
+      // Move ears to neutral position
       neutralEars();
     }
     else if (val == 0)  {
-      mood = 0;
+      state = 0;
       // Droop ears accoringly
       droopEars();
     }
@@ -108,6 +105,24 @@ void loop() {
   }
   else {
     count += 1;
+    if (count == MAX_COUNT) {
+      count = 0;
+      if (state == 2) {
+        state = 2;
+        wiggleEars(3);
+      }
+      else if (state ==1)  {
+        // Move ears to neutral position
+        // TODO: add a neutral wiggle
+        neutralEars();
+      }
+      else if (state == 0)  {
+        // Droop ears accoringly
+        // TODO: add a drooped wiggle
+        droopEars();
+      }
+      delay(100);
+    }
   }
 }
 

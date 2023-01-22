@@ -1,11 +1,10 @@
-# Importing libraries
-import serial # For writing to Arduino serial
-from pylsl import StreamInlet, resolve_stream 
+# Importing libraries for communicating with Arduino
+import serial
 
 ser = serial.Serial('/dev/tty.usbmodem2101', 115200)  # open serial port
 print("Connected to ", ser.name)         # check which port was really used
 
-mood = 0
+state = 0
 
 """
 Estimate Relaxation from Band Powers
@@ -155,19 +154,19 @@ if __name__ == "__main__":
             # print('Theta Relaxation: ', theta_metric)
 
             if (beta_metric > 0.7) :
-              new_mood = 2 # Excited
+              new_state = 2 # Excited
             
             elif (beta_metric > 0.4) :
-              new_mood = 1 # Neutral
+              new_state = 1 # Neutral
           
             else :
-              new_mood = 0 # Relaxed
+              new_state = 0 # Relaxed
             
-            if (new_mood != mood) :
-              mood = new_mood
-              ser.write((f"{new_mood}").encode())
+            if (new_state != state) :
+              state = new_state
+              ser.write((f"{new_state}").encode())
             
-            print('Mood: ', mood)
+            print('State: ', state)
 
     except KeyboardInterrupt:
         print('Closing!')
