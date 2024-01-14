@@ -153,10 +153,10 @@ if __name__ == "__main__":
             #     smooth_band_powers[Band.Alpha]
             # print('Theta Relaxation: ', theta_metric)
 
-            if (beta_metric > 0.7) :
+            if (beta_metric > 0.5) :
               new_state = 2 # Excited
             
-            elif (beta_metric > 0.4) :
+            elif (beta_metric > 0.3) :
               new_state = 1 # Neutral
           
             else :

@@ -26,7 +26,7 @@
 #define L_P_NEUTRAL 90
 #define R_P_NEUTRAL 90
 
-#define MAX_COUNT 500
+#define MAX_COUNT 32767
 
 // Enum for speed
 typedef enum { FAST, SLOW } speed_t;
@@ -62,13 +62,20 @@ void setup() {
   
   delay(1000);
 
-  // Test movements on startup
-  wiggleEars(3);
-  delay(1000);
-  droopEars();
-  delay(1000);
-  neutralEars();
-  delay(1000);
+  // // Test movements on startup
+  // wiggleEars(3);
+  // delay(1000);
+  // droopEars();
+  // delay(1000);
+  // droopWiggle();
+  // delay(1000);
+  // neutralEars();
+  // delay(1000);
+  // neutralWiggle();
+  // delay(1000);
+
+  count = 0;
+  state = 0;
 
   // Begin Serial Communication
   Serial.begin(BAUDRATE);
@@ -80,6 +87,7 @@ void loop() {
 
   // Data received from serial port
   if (Serial.available()){
+    count = 0;
     Serial.print("Data received: ");
     String data = Serial.readStringUntil('\n');
     
@@ -101,7 +109,7 @@ void loop() {
       // Droop ears accoringly
       droopEars();
     }
-    delay(100);
+    delay(500);
   }
   else {
     count += 1;
@@ -109,19 +117,16 @@ void loop() {
       count = 0;
       if (state == 2) {
         state = 2;
-        wiggleEars(3);
+        // wiggleEars(3);
       }
       else if (state ==1)  {
         // Move ears to neutral position
-        // TODO: add a neutral wiggle
-        neutralEars();
+        // neutralWiggle();
       }
       else if (state == 0)  {
         // Droop ears accoringly
-        // TODO: add a drooped wiggle
-        droopEars();
+        // droopWiggle();
       }
-      delay(100);
     }
   }
 }
@@ -218,9 +223,37 @@ void droopEars() {
 }
 
 /**
+ * @brief Wiggles ears when drooped
+ */
+void droopWiggle() {
+  sweepToPosition(90, 90, 40, 140, SLOW);
+  delay(100);
+  sweepToPosition(100, 100, 40, 140, SLOW);
+  delay(100);
+  sweepToPosition(90, 90, 40, 140, SLOW);
+  delay(100);
+  sweepToPosition(100, 100, 40, 140, SLOW);
+  delay(100);
+}
+
+/**
  * @brief Sets the servo positions to the neutral position
  */
 void neutralEars() {
+  sweepToPosition(L_T_NEUTRAL, R_T_NEUTRAL, L_P_NEUTRAL, R_P_NEUTRAL, SLOW);
+  delay(100);
+}
+
+/**
+ * @brief Sets the servo positions to the neutral position
+ */
+void neutralWiggle() {
+  sweepToPosition(L_T_NEUTRAL + 10, R_T_NEUTRAL + 10, L_P_NEUTRAL, R_P_NEUTRAL, SLOW);
+  delay(100);
+  sweepToPosition(L_T_NEUTRAL, R_T_NEUTRAL, L_P_NEUTRAL, R_P_NEUTRAL, SLOW);
+  delay(100);
+  sweepToPosition(L_T_NEUTRAL + 10, R_T_NEUTRAL + 10, L_P_NEUTRAL, R_P_NEUTRAL, SLOW);
+  delay(100);
   sweepToPosition(L_T_NEUTRAL, R_T_NEUTRAL, L_P_NEUTRAL, R_P_NEUTRAL, SLOW);
   delay(100);
 }
